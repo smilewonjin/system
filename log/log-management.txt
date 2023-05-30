@@ -1,0 +1,31 @@
+#!/bin/bash
+
+DATE=`/bin/date +%Y%m%d -d '1day ago'`
+DATE2=`/bin/date +%y%m%d -d '1day ago'`
+DATE3=`/bin/date +%Y-%m-%d -d '1day ago'`
+A_LOG_DIR=[apache log path]
+A_MOVE_DIR=[apache log move path]
+T_LOG_DIR=[tomcat log path]
+T_MOVE_DIR=[tomcat log move path]
+
+
+### apache_logs move ###
+
+cd $A_LOG_DIR
+find . -name "*$DATE*" -exec gzip -v {} \;
+find . -name "*.gz" -mtime +7 -exec rsync -avR --remove-source-files {} $A_MOVE_DIR/ \;
+
+cd $A_MOVE_DIR
+find . -name "*.gz" -mtime +180 -exec rm -f {} \;
+
+### tomcat_logs move ###
+
+cd $T_LOG_DIR
+find . -name "*$DATE*" -exec gzip -v {} \;
+find . -name "*$DATE2*" -exec gzip -v {} \;
+find . -name "*$DATE3*" -exec gzip -v {} \;
+find . -name "*.gz" -mtime +7 -exec rsync -avR --remove-source-files {} $T_MOVE_DIR/ \;
+
+cd $T_MOVE_DIR
+find . -name "*.gz" -mtime +180 -exec rm -f {} \;
+
